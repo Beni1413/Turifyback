@@ -14,7 +14,13 @@ app = FastAPI()
 
 # Crea tablas en la base de datos
 models.Base.metadata.create_all(bind=database.engine)
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,            # Orígenes permitidos
+    allow_credentials=True,           # Permitir cookies/autenticación
+    allow_methods=["*"],              # Métodos HTTP permitidos
+    allow_headers=["*"],              # Headers permitidos
+)
 # Dependencia para obtener sesión DB
 def get_db():
     db = database.SessionLocal()
