@@ -12,6 +12,9 @@ from typing import List
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:4200"
+]
 # Crea tablas en la base de datos
 models.Base.metadata.create_all(bind=database.engine)
 app.add_middleware(
