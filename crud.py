@@ -19,8 +19,8 @@ def get_user_by_email(db: Session, email: str):
 def create_user(db: Session, user: UserCreate):
     hashed_password = pwd_context.hash(user.password)
     db_user = User(
-        nombre=user.nombre,
-        apellido=user.apellido,
+        name=user.name,
+        surname=user.surname,
         email=user.email,
         password=hashed_password
     )

@@ -46,7 +46,7 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # Crear nuevo usuario
     nuevo_usuario = models.User(
         name=user.name,
-        lastname=user.lastname,
+        surname=user.surname,
         email=user.email,
         password=user.password 
     )

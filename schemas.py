@@ -4,7 +4,7 @@ from typing import List
 
 class UserCreate(BaseModel):
     name: str
-    lastname: str
+    surname: str
     email: str
     password: str
 
