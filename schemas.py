@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
 from typing import List
-
+from typing import Optional
 class UserCreate(BaseModel):
     name: str
     surname: str
@@ -69,14 +69,14 @@ class PedidoEstadoUpdate(BaseModel):
 class ServicioCreate(BaseModel):
     nombre: str
     categoria: str
-    descripcion: str = None
-    precio: int
-    noches: int = None
-    personas: int = None
-    duracion: int = None
-    clase: str = None
-    dias: str = None
-    gama: str = None
+    descripcion: str 
+    precio: float
+    noches: Optional[int] = None
+    personas: Optional[int] = None
+    duracion: Optional[str] = None
+    clase: Optional[str] = None
+    dias: Optional[int] = None
+    gama: Optional[str] = None
 
     class Config:
         orm_mode = True
