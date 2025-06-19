@@ -11,6 +11,7 @@ from models import Servicios
 from schemas import ServicioCreate
 from models import pedidosPendientes
 from models import Servicios
+from schemas import ServicioUpdate
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

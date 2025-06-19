@@ -114,3 +114,4 @@ class ServicioUpdate(BaseModel):
 
     class Config:
         from_attributes = True
+

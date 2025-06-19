@@ -13,6 +13,7 @@ import crud, schemas
 from schemas import PedidoEstadoUpdate
 from fastapi import Body
 from fastapi import HTTPException
+from schemas import ServicioUpdate
 
 app = FastAPI()
 
