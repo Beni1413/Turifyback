@@ -65,7 +65,7 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     ).first()
     if not db_user:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    return {"message": "Login exitoso", "user_id": db_user.id, "role": db_user.rol}
+    return {"message": "Login exitoso", "user_id": db_user.id, "role": db_user.rol, "name": db_user.name}
 
 @app.get("/cart/{user_id}", response_model=list[schemas.CartItemOut])
 def get_cart(user_id: int, db: Session = Depends(get_db)):
