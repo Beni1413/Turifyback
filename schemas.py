@@ -98,3 +98,19 @@ class ServicioOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+class ServicioOut(BaseModel):
+    id: int
+    nombre: str
+    categoria: str
+    descripcion: str | None = None
+    precio: int
+    noches: int | None = None
+    personas: int | None = None
+    duracion: int | None = None
+    clase: str | None = None
+    dias: str | None = None
+    gama: str | None = None
+
+    class Config:
+        from_attributes = True

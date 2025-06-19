@@ -10,6 +10,7 @@ from schemas import DetalleDePedidoCreate
 from models import Servicios
 from schemas import ServicioCreate
 from models import pedidosPendientes
+from models import Servicios
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -92,3 +93,6 @@ def crear_servicio(db: Session, servicio: ServicioCreate):
     
 def filtrar_servicios_por_categoria(db: Session, categoria: str):
     return db.query(Servicios).filter(Servicios.categoria == categoria).all()
+
+def get_all_servicios(db: Session):
+    return db.query(Servicios).all()

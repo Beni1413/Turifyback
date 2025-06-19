@@ -9,6 +9,8 @@ from schemas import DetalleDePedidoCreate, DetalleDePedidoOut
 from typing import List
 from schemas import ServicioCreate, ServicioOut
 from typing import List
+import crud, schemas
+
 
 app = FastAPI()
 
@@ -109,3 +111,7 @@ def filtrar_por_categoria(categoria: str, db: Session = Depends(get_db)):
     if not servicios:
         raise HTTPException(status_code=404, detail="No se encontraron servicios con esa categoría")
     return servicios
+
+@app.get("/servicios/", response_model=list[schemas.ServicioOut])
+def listar_servicios(db: Session = Depends(get_db)):
+    return crud.get_all_servicios(db)
