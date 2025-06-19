@@ -99,7 +99,8 @@ def cambiar_estado_pedido(update: PedidoEstadoUpdate, db: Session = Depends(get_
 
 @app.post("/servicios/", response_model=ServicioOut)
 def crear_servicio(servicio: ServicioCreate, db: Session = Depends(get_db)):
-    return crud.crear_servicio(db, servicio.id, servicio.nombre, servicio.descripcion, servicio.precio, servicio.categoria)
+    return crud.crear_servicio(db, servicio)
+
 
 @app.get("/servicios/filtrar", response_model=List[schemas.ServicioOut])
 def filtrar_por_categoria(categoria: str, db: Session = Depends(get_db)):
