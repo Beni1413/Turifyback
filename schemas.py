@@ -89,17 +89,17 @@ class ServicioOut(BaseModel):
     id: int
     nombre: str
     categoria: str
-    descripcion: str = None
+    descripcion: Optional[str] = None
     precio: int
-    noches: int = None
-    personas: int = None
-    duracion: int = None
-    clase: str = None
-    dias: str = None
-    gama: str = None
+    noches: Optional[int] = None
+    personas: Optional[int] = None
+    duracion: Optional[int] = None
+    clase: Optional[str] = None
+    dias: Optional[str] = None
+    gama: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True 
 
 class ServicioUpdate(BaseModel):
     nombre: str | None = None
