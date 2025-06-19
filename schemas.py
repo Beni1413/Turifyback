@@ -48,6 +48,7 @@ class PedidoCabecera(PedidoCabeceraCreate):
 
     class Config:
         orm_mode = True
+
 class DetalleDePedidoCreate(BaseModel):
     pedido_id: int
     servicio_id: int
@@ -99,12 +100,11 @@ class ServicioOut(BaseModel):
     class Config:
         orm_mode = True
 
-class ServicioOut(BaseModel):
-    id: int
-    nombre: str
-    categoria: str
+class ServicioUpdate(BaseModel):
+    nombre: str | None = None
+    categoria: str | None = None
     descripcion: str | None = None
-    precio: int
+    precio: int | None = None
     noches: int | None = None
     personas: int | None = None
     duracion: int | None = None

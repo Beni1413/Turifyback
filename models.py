@@ -17,7 +17,6 @@ class User(Base):
     # Relación con pedidosPendientes
     pedidos = relationship("pedidosPendientes", back_populates="user")
 
-
 class DetalleDePedido(Base):
     __tablename__ = "detalle_de_pedido"
 
@@ -33,7 +32,6 @@ class DetalleDePedido(Base):
     # Relación inversa con Servicios
     servicio = relationship("Servicios", back_populates="detalles_pedido")
 
-
 class CartItem(Base):
     __tablename__ = "cart_items"
 
@@ -46,7 +44,6 @@ class CartItem(Base):
     user = relationship("User", back_populates="cart_items")
     # Relación con Servicios
     servicio = relationship("Servicios", back_populates="cart_items")
-
 
 class pedidosPendientes(Base):
     __tablename__ = "pedidos_pendientes"
@@ -67,7 +64,6 @@ class pedidosPendientes(Base):
     servicio = relationship("Servicios", back_populates="pedidos")
     # Relación con DetalleDePedido
     detalles_pedido = relationship("DetalleDePedido", back_populates="pedido")
-
 
 class Servicios(Base):
     __tablename__ = "servicios"

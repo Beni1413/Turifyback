@@ -62,8 +62,6 @@ def create_pedido(db: Session, pedido: PedidoCabeceraCreate):
     db.refresh(db_pedido)
     return db_pedido
 
-
-
 def crear_detalle_de_pedido(db: Session, detalles: list[DetalleDePedidoCreate]):
     nuevos_detalles = []
     for detalle_data in detalles:
@@ -96,3 +94,23 @@ def filtrar_servicios_por_categoria(db: Session, categoria: str):
 
 def get_all_servicios(db: Session):
     return db.query(Servicios).all()
+
+def actualizar_servicio(db: Session, servicio_id: int, datos: ServicioUpdate):
+    servicio = db.query(Servicios).filter(Servicios.id == servicio_id).first()
+    if not servicio:
+        return None
+
+    for campo, valor in datos.dict(exclude_unset=True).items():
+        setattr(servicio, campo, valor)
+
+    db.commit()
+    db.refresh(servicio)
+    return servicio
+
+def eliminar_servicio(db: Session, servicio_id: int):
+    servicio = db.query(Servicios).filter(Servicios.id == servicio_id).first()
+    if not servicio:
+        return False
+    db.delete(servicio)
+    db.commit()
+    return True

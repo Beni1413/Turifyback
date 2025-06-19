@@ -10,7 +10,9 @@ from typing import List
 from schemas import ServicioCreate, ServicioOut
 from typing import List
 import crud, schemas
-
+from schemas import PedidoEstadoUpdate
+from fastapi import Body
+from fastapi import HTTPException
 
 app = FastAPI()
 
@@ -34,10 +36,6 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/")
-def root():
-    return {"message": "Funciona :)"}
-
 @app.post("/signup")
 def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # Verificar si ya existe el email
@@ -57,7 +55,6 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(nuevo_usuario)
 
     return {"message": "Usuario creado correctamente", "user_id": nuevo_usuario.id}
-
 
 @app.post("/login")
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
@@ -91,8 +88,6 @@ def create_pedido(
 @app.post("/pedidos/detalle", response_model=List[DetalleDePedidoOut])
 def crear_detalle(detalles: List[DetalleDePedidoCreate], db: Session = Depends(get_db)):
     return crud.crear_detalle_de_pedido(db, detalles)
-from schemas import PedidoEstadoUpdate
-from fastapi import Body
 
 @app.put("/pedidos/estado")
 def cambiar_estado_pedido(update: PedidoEstadoUpdate, db: Session = Depends(get_db)):
@@ -103,7 +98,7 @@ def cambiar_estado_pedido(update: PedidoEstadoUpdate, db: Session = Depends(get_
 
 @app.post("/servicios/", response_model=ServicioOut)
 def crear_servicio(servicio: ServicioCreate, db: Session = Depends(get_db)):
-    return crud.crear_servicio(db, servicio)
+    return crud.crear_servicio(db, servicio.id, servicio.nombre, servicio.descripcion, servicio.precio, servicio.categoria)
 
 @app.get("/servicios/filtrar", response_model=List[schemas.ServicioOut])
 def filtrar_por_categoria(categoria: str, db: Session = Depends(get_db)):
@@ -115,3 +110,18 @@ def filtrar_por_categoria(categoria: str, db: Session = Depends(get_db)):
 @app.get("/servicios/", response_model=list[schemas.ServicioOut])
 def listar_servicios(db: Session = Depends(get_db)):
     return crud.get_all_servicios(db)
+
+@app.put("/servicios/{servicio_id}", response_model=schemas.ServicioOut)
+def update_servicio(servicio_id: int, data: schemas.ServicioUpdate, db: Session = Depends(get_db)):
+    servicio_actualizado = crud.actualizar_servicio(db, servicio_id, data)
+    if not servicio_actualizado:
+        raise HTTPException(status_code=404, detail="Servicio no encontrado")
+    return servicio_actualizado
+
+@app.delete("/servicios/{servicio_id}")
+def borrar_servicio(servicio_id: int, db: Session = Depends(get_db)):
+    exito = crud.eliminar_servicio(db, servicio_id)
+    if not exito:
+        raise HTTPException(status_code=404, detail="Servicio no encontrado")
+    return {"mensaje": "Servicio eliminado correctamente"}
+
