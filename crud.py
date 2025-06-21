@@ -66,6 +66,11 @@ def create_pedido(db: Session, pedido: PedidoCabeceraCreate):
     db.add(db_pedido)
     db.commit()
     db.refresh(db_pedido)
+    enviar_mail_confirmacion(
+        destinatario=pedido.email_usuario,
+        nombre="Cliente",  # podés traer esto desde la tabla de usuarios si querés personalizar
+        numero_pedido=pedido.numero_pedido
+    )
     return db_pedido
 
 def crear_detalle_de_pedido(db: Session, detalles: list[DetalleDePedidoCreate]):
