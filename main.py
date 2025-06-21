@@ -14,6 +14,7 @@ from fastapi import HTTPException
 from schemas import ServicioUpdate
 import crud, schemas
 import models, schemas, database, crud
+from dependencies import verificar_admin
 
 app = FastAPI()
 
@@ -133,4 +134,8 @@ def borrar_servicio(servicio_id: int, db: Session = Depends(get_db)):
     if not exito:
         raise HTTPException(status_code=404, detail="Servicio no encontrado")
     return {"mensaje": "Servicio eliminado correctamente"}
+
+@app.get("/admin/dashboard")
+def admin_dashboard(_ = Depends(verificar_admin)):
+    return {"msg": "Bienvenido Admin"}
 
