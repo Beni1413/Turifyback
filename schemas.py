@@ -61,6 +61,20 @@ class PedidoCabecera(PedidoCabeceraCreate):
     class Config:
         orm_mode = True
 
+class PedidoCabecera(BaseModel):
+    id: int
+    user_id: int
+    servicio_id: int
+    numero_pedido: str
+    monto_total: float
+    estado: str
+    fecha_creacion: datetime
+    direccion_entrega: str
+    email_usuario: str
+
+    class Config:
+        from_attributes = True
+
 class DetalleDePedidoCreate(BaseModel):
     pedido_id: int
     servicio_id: int
