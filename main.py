@@ -105,6 +105,10 @@ def cambiar_estado_pedido(update: PedidoEstadoUpdate, db: Session = Depends(get_
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     return {"msg": "Estado actualizado correctamente", "nuevo_estado": pedido_actualizado.estado}
 
+@app.get("/pedidos/", response_model=List[schemas.PedidoCabecera])
+def obtener_pedidos(db: Session = Depends(get_db)):
+    return crud.get_all_pedidos(db)
+
 @app.post("/servicios/", response_model=ServicioOut)
 def crear_servicio(servicio: ServicioCreate, db: Session = Depends(get_db)):
     return crud.crear_servicio(db, servicio)

@@ -119,3 +119,6 @@ def eliminar_servicio(db: Session, servicio_id: int):
     db.delete(servicio)
     db.commit()
     return True
+
+def get_all_pedidos(db: Session):
+    return db.query(models.pedidosPendientes).all()
