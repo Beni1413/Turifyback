@@ -14,6 +14,16 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
+class UserOut(BaseModel):
+    id: int
+    name: str
+    surname: str
+    email: str
+    rol: str  # si tenés roles
+
+    class Config:
+        from_attributes = True
+
 class CartItemBase(BaseModel):
     product_id: int
     quantity: int

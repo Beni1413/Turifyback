@@ -67,6 +67,13 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     return {"message": "Login exitoso", "user_id": db_user.id, "role": db_user.rol, "name": db_user.name, "email": db_user.email}
 
+@app.get("/usuarios/{user_id}", response_model=schemas.UserOut)
+def obtener_usuario(user_id: int, db: Session = Depends(get_db)):
+    usuario = crud.get_user_by_id(db, user_id)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return usuario
+
 @app.get("/cart/{user_id}", response_model=list[schemas.CartItemOut])
 def get_cart(user_id: int, db: Session = Depends(get_db)):
     return crud.get_cart(db, user_id)

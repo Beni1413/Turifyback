@@ -32,6 +32,9 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
+def get_user_by_id(db: Session, user_id: int):
+    return db.query(User).filter(User.id == user_id).first()
+
 def get_cart(db: Session, user_id: int):
     return db.query(CartItem).filter(CartItem.user_id == user_id).all()
 
