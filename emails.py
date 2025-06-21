@@ -4,7 +4,7 @@ from email.mime.multipart import MIMEMultipart
 
 def enviar_mail_confirmacion(destinatario: str, nombre: str, numero_pedido: str):
     remitente = "viceensanchh@gmail.com"
-    password = "Hola1234" 
+    password = "wkmu kasy rvyr uutx" 
     asunto = "Pedido confirmado"
     
     cuerpo = f"""
