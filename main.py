@@ -16,7 +16,7 @@ import crud, schemas
 import models, schemas, database, crud
 from dependencies import verificar_admin
 from fastapi import Depends
-from app.dependencies import get_current_user  # si tenés esto
+from dependencies import get_current_user  # si tenés esto
 from models import User 
 app = FastAPI()
 
