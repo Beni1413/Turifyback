@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
-import models, schemas, database, crud
 from fastapi import APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
@@ -9,11 +8,12 @@ from schemas import DetalleDePedidoCreate, DetalleDePedidoOut
 from typing import List
 from schemas import ServicioCreate, ServicioOut
 from typing import List
-import crud, schemas
 from schemas import PedidoEstadoUpdate
 from fastapi import Body
 from fastapi import HTTPException
 from schemas import ServicioUpdate
+import crud, schemas
+import models, schemas, database, crud
 
 app = FastAPI()
 

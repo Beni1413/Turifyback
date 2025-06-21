@@ -12,6 +12,7 @@ from schemas import ServicioCreate
 from models import pedidosPendientes
 from models import Servicios
 from schemas import ServicioUpdate
+from datetime import datetime
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -54,7 +55,7 @@ def create_pedido(db: Session, pedido: PedidoCabeceraCreate):
         numero_pedido=pedido.numero_pedido,
         monto_total=pedido.monto_total,
         estado=pedido.estado,
-        fecha_creacion=str(pedido.fecha_creacion),  
+        fecha_creacion=pedido.fecha_creacion or datetime.utcnow(),  
         direccion_entrega=pedido.direccion_entrega,
         email_usuario=pedido.email_usuario
     )

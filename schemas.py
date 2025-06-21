@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import date
 from typing import List
 from typing import Optional
+from datetime import datetime
 
 class UserCreate(BaseModel):
     name: str
@@ -37,7 +38,7 @@ class PedidoCabeceraCreate(BaseModel):
     numero_pedido: str
     monto_total: float
     estado: str = "pendiente"
-    fecha_creacion: date
+    fecha_creacion: datetime
     direccion_entrega: str
     email_usuario: str
 
