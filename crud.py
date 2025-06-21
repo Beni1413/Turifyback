@@ -99,6 +99,9 @@ def anular_pedido(db: Session, pedido_id: int):
     db.refresh(pedido)
     return pedido
 
+def get_pedidos_por_usuario(db: Session, user_id: int):
+    return db.query(models.pedidosPendientes).filter(models.pedidosPendientes.user_id == user_id).all()
+
 def crear_servicio(db: Session, servicio: ServicioCreate):
     nuevo_servicio = Servicios(**servicio.dict())
     db.add(nuevo_servicio)

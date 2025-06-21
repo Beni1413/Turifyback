@@ -15,7 +15,9 @@ from schemas import ServicioUpdate
 import crud, schemas
 import models, schemas, database, crud
 from dependencies import verificar_admin
-
+from fastapi import Depends
+from app.dependencies import get_current_user  # si tenés esto
+from models import User 
 app = FastAPI()
 
 origins = [
@@ -115,6 +117,13 @@ def anular_pedido(data: schemas.PedidoAnulacion, db: Session = Depends(get_db)):
     if not pedido:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     return {"mensaje": "Pedido anulado correctamente", "estado": pedido.estado}
+
+@app.get("/pedidos/mios", response_model=List[schemas.PedidoCabecera])
+def obtener_mis_pedidos(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return crud.get_pedidos_por_usuario(db, current_user.id)
 
 @app.post("/servicios/", response_model=ServicioOut)
 def crear_servicio(servicio: ServicioCreate, db: Session = Depends(get_db)):
