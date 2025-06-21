@@ -14,6 +14,7 @@ from models import Servicios
 from schemas import ServicioUpdate
 from datetime import datetime
 import models
+from emails import enviar_mail_confirmacion
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
