@@ -109,6 +109,13 @@ def cambiar_estado_pedido(update: PedidoEstadoUpdate, db: Session = Depends(get_
 def obtener_pedidos(db: Session = Depends(get_db)):
     return crud.get_all_pedidos(db)
 
+@app.put("/pedidos/anular")
+def anular_pedido(data: schemas.PedidoAnulacion, db: Session = Depends(get_db)):
+    pedido = crud.anular_pedido(db, data.pedido_id)
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    return {"mensaje": "Pedido anulado correctamente", "estado": pedido.estado}
+
 @app.post("/servicios/", response_model=ServicioOut)
 def crear_servicio(servicio: ServicioCreate, db: Session = Depends(get_db)):
     return crud.crear_servicio(db, servicio)

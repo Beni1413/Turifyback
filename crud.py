@@ -88,6 +88,17 @@ def actualizar_estado_pedido(db: Session, pedido_id: int, nuevo_estado: str):
     db.refresh(pedido)
     return pedido
 
+def anular_pedido(db: Session, pedido_id: int):
+    pedido = db.query(models.pedidosPendientes).filter(models.pedidosPendientes.id == pedido_id).first()
+    if not pedido:
+        return None
+    if pedido.estado == "anulado":
+        return pedido  # Ya está anulado
+    pedido.estado = "anulado"
+    db.commit()
+    db.refresh(pedido)
+    return pedido
+
 def crear_servicio(db: Session, servicio: ServicioCreate):
     nuevo_servicio = Servicios(**servicio.dict())
     db.add(nuevo_servicio)

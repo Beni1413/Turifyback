@@ -92,6 +92,12 @@ class PedidoEstadoUpdate(BaseModel):
     id: int
     nuevo_estado: str
 
+class PedidoAnulacion(BaseModel):
+    pedido_id: int
+
+    class Config:
+        from_attributes = True
+
 class ServicioCreate(BaseModel):
     nombre: str
     categoria: str
