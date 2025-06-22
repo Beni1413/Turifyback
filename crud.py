@@ -108,6 +108,25 @@ def anular_pedido(db: Session, pedido_id: int):
 def get_pedidos_por_usuario(db: Session, user_id: int):
     return db.query(models.pedidosPendientes).filter(models.pedidosPendientes.user_id == user_id).all()
 
+def get_pedidos_con_servicio(db: Session, user_id: int):
+    return (
+        db.query(
+            models.pedidosPendientes.id,
+            models.pedidosPendientes.numero_pedido,
+            models.pedidosPendientes.monto_total,
+            models.pedidosPendientes.estado,
+            models.pedidosPendientes.fecha_creacion,
+            models.pedidosPendientes.direccion_entrega,
+            models.pedidosPendientes.email_usuario,
+            models.Servicio.id.label("servicio_id"),
+            models.Servicio.nombre.label("nombre_servicio"),
+            models.Servicio.categoria.label("categoria_servicio")
+        )
+        .join(models.Servicio, models.pedidosPendientes.servicio_id == models.Servicio.id)
+        .filter(models.pedidosPendientes.user_id == user_id)
+        .all()
+    )
+
 def crear_servicio(db: Session, servicio: ServicioCreate):
     nuevo_servicio = Servicios(**servicio.dict())
     db.add(nuevo_servicio)

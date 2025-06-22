@@ -68,7 +68,7 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     ).first()
     if not db_user:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    return {"message": "Login exitoso", "user_id": db_user.id, "role": db_user.rol, "name": db_user.name, "email": db_user.email}
+    return {"message": "Login exitoso", "user_id": db_user.id, "role": db_user.rol, "name": db_user.name, "email": db_user.email, "surname": db_user.surname}
 
 @app.get("/usuarios/{user_id}", response_model=schemas.UserOut)
 def obtener_usuario(user_id: int, db: Session = Depends(get_db)):
@@ -123,7 +123,8 @@ def obtener_mis_pedidos(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return crud.get_pedidos_por_usuario(db, current_user.id)
+    return crud.get_pedidos_con_servicio(db, current_user.id)
+
 
 @app.post("/servicios/", response_model=ServicioOut)
 def crear_servicio(servicio: ServicioCreate, db: Session = Depends(get_db)):

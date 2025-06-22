@@ -63,17 +63,19 @@ class PedidoCabecera(PedidoCabeceraCreate):
 
 class PedidoCabecera(BaseModel):
     id: int
-    user_id: int
-    servicio_id: int
     numero_pedido: str
     monto_total: float
     estado: str
     fecha_creacion: datetime
     direccion_entrega: str
     email_usuario: str
+    servicio_id: int
+    nombre_servicio: str
+    categoria_servicio: str
 
     class Config:
         from_attributes = True
+
 
 class DetalleDePedidoCreate(BaseModel):
     pedido_id: int
