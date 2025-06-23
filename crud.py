@@ -42,11 +42,7 @@ def remove_item(db: Session, user_id: int, product_id: int):
         db.delete(item)
         db.commit()
 
-def procesar_pedido_completo(
-    db: Session,
-    pedido_data: PedidoCabeceraCreate,
-    detalles_data: list[DetalleDePedidoCreate]
-):
+def procesar_pedido_completo(db: Session, pedido_data: PedidoCabeceraCreate, detalles_data: list[DetalleDePedidoCreate]):
     db_pedido = pedidosPendientes(
         user_id=pedido_data.user_id,
         servicio_id=pedido_data.servicio_id,
@@ -184,6 +180,7 @@ def get_all_pedidos(db: Session):
             Servicios.categoria.label("categoria_servicio")
         )
         .join(Servicios, pedidosPendientes.servicio_id == Servicios.id)
+        .order_by(pedidosPendientes.fecha_creacion.desc())
         .all()
     )
 
