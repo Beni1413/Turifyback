@@ -91,11 +91,9 @@ def remove_from_cart(user_id: int, product_id: int, db: Session = Depends(get_db
     return {"msg": "Se eliminó el producto del carrito"}
 
 @app.post("/pedidos/", response_model=schemas.PedidoCabeceraSimple)
-def create_pedido(
-    pedido: schemas.PedidoCabeceraCreate,
-    db: Session = Depends(get_db)
-):
-    return crud.create_pedido(db, pedido)
+def create_pedido(pedido: schemas.PedidoCabeceraCreate, db: Session = Depends(get_db)):
+    return crud.procesar_pedido_completo(db, pedido_data=pedido, detalles_data=[])
+
 @app.post("/pedidos/detalle", response_model=List[DetalleDePedidoOut])
 def crear_detalle(detalles: List[DetalleDePedidoCreate], db: Session = Depends(get_db)):
     return crud.crear_detalle_de_pedido(db, detalles)
