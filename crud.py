@@ -168,30 +168,53 @@ def crear_detalle_de_pedido(db: Session, detalles: list[DetalleDePedidoCreate]):
         db.refresh(d)
 
     if not nuevos_detalles:
+        print("⛔ No se recibieron detalles para procesar.")
         return []
+
+    print("📦 Detalles recibidos:")
+    for d in nuevos_detalles:
+        print(f" → Detalle: pedido_id={d.pedido_id}, servicio_id={d.servicio_id}, cantidad={d.cantidad}, importe={d.importe}")
 
     pedido_id = nuevos_detalles[0].pedido_id
     pedido = db.query(pedidosPendientes).get(pedido_id)
+
+    if not pedido:
+        print(f"🚫 No se encontró el pedido con ID {pedido_id}")
+        return nuevos_detalles
+
     usuario = db.query(User).get(pedido.user_id)
+    print(f"👤 Usuario: {usuario.name if usuario else 'Desconocido'}")
+    print(f"📧 Email: {pedido.email_usuario}")
+    print(f"📍 Dirección: {pedido.direccion_entrega}")
+    print(f"🕐 Fecha: {pedido.fecha_creacion}")
 
     lista_detalles = []
     for d in nuevos_detalles:
         servicio = db.query(Servicios).get(d.servicio_id)
-        lista_detalles.append({
-            "nombre": servicio.nombre,
-            "categoria": servicio.categoria,
-            "precio": servicio.precio,
-            "cantidad": d.cantidad
-        })
+        if servicio:
+            print(f"✅ Servicio encontrado: {servicio.nombre} | Precio: {servicio.precio}")
+            lista_detalles.append({
+                "nombre": servicio.nombre,
+                "categoria": servicio.categoria,
+                "precio": servicio.precio,
+                "cantidad": d.cantidad
+            })
+        else:
+            print(f"⚠️ Servicio ID {d.servicio_id} no encontrado.")
 
-    enviar_mail_confirmacion(
-        destinatario=pedido.email_usuario,
-        nombre=usuario.name if usuario else "Cliente",
-        numero_pedido=pedido.numero_pedido,
-        detalles=lista_detalles,
-        direccion=pedido.direccion_entrega,
-        fecha=pedido.fecha_creacion.strftime("%d/%m/%Y")
-    )
+    if lista_detalles:
+        enviar_mail_confirmacion(
+            destinatario=pedido.email_usuario,
+            nombre=usuario.name if usuario else "Cliente",
+            numero_pedido=pedido.numero_pedido,
+            detalles=lista_detalles,
+            direccion=pedido.direccion_entrega,
+            fecha=pedido.fecha_creacion.strftime("%d/%m/%Y")
+        )
+        print("📨 Correo de confirmación enviado.")
+    else:
+        print("❌ No se enviará el correo: lista_detalles vacía.")
 
     return nuevos_detalles
+
 
