@@ -122,7 +122,7 @@ def get_pedidos_con_servicio(db: Session, user_id: int):
             models.Servicios.nombre.label("nombre_servicio"),
             models.Servicios.categoria.label("categoria_servicio")
         )
-        .join(models.Servicio, models.pedidosPendientes.servicio_id == models.Servicio.id)
+        .join(models.Servicios, models.pedidosPendientes.servicio_id == models.Servicios.id)
         .filter(models.pedidosPendientes.user_id == user_id)
         .all()
     )
