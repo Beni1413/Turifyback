@@ -75,7 +75,7 @@ class Servicios(Base):
     precio = Column(Integer, nullable=False)
     noches = Column(Integer, nullable=True)
     personas = Column(Integer, nullable=True)
-    duracion = Column(Integer, nullable=True)
+    duracion = Column(String(50), nullable=True)
     clase = Column(String(50), nullable=True)
     dias = Column(String(50), nullable=True)
     gama = Column(String(50), nullable=True)
