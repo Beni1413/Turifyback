@@ -161,4 +161,20 @@ def eliminar_servicio(db: Session, servicio_id: int):
     return True
 
 def get_all_pedidos(db: Session):
-    return db.query(models.pedidosPendientes).all()
+    return (
+        db.query(
+            models.pedidosPendientes.id,
+            models.pedidosPendientes.numero_pedido,
+            models.pedidosPendientes.monto_total,
+            models.pedidosPendientes.estado,
+            models.pedidosPendientes.fecha_creacion,
+            models.pedidosPendientes.direccion_entrega,
+            models.pedidosPendientes.email_usuario,
+            models.Servicios.id.label("servicio_id"),
+            models.Servicios.nombre.label("nombre_servicio"),
+            models.Servicios.categoria.label("categoria_servicio")
+        )
+        .join(models.Servicios, models.pedidosPendientes.servicio_id == models.Servicios.id)
+        .all()
+    )
+
