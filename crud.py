@@ -191,3 +191,41 @@ def eliminar_pedido(db: Session, pedido_id: int):
     db.delete(pedido)
     db.commit()
     return True
+
+def crear_detalle_de_pedido(db: Session, detalles: list[DetalleDePedidoCreate]):
+    nuevos_detalles = []
+    for detalle_data in detalles:
+        nuevo = DetalleDePedido(**detalle_data.dict())
+        db.add(nuevo)
+        nuevos_detalles.append(nuevo)
+    db.commit()
+    for d in nuevos_detalles:
+        db.refresh(d)
+
+    if not nuevos_detalles:
+        return []
+
+    pedido_id = nuevos_detalles[0].pedido_id
+    pedido = db.query(pedidosPendientes).get(pedido_id)
+    usuario = db.query(User).get(pedido.user_id)
+
+    lista_detalles = []
+    for d in nuevos_detalles:
+        servicio = db.query(Servicios).get(d.servicio_id)
+        lista_detalles.append({
+            "nombre": servicio.nombre,
+            "categoria": servicio.categoria,
+            "precio": servicio.precio,
+            "cantidad": d.cantidad
+        })
+
+    enviar_mail_confirmacion(
+        destinatario=pedido.email_usuario,
+        nombre=usuario.name if usuario else "Cliente",
+        numero_pedido=pedido.numero_pedido,
+        detalles=lista_detalles,
+        direccion=pedido.direccion_entrega,
+        fecha=pedido.fecha_creacion.strftime("%d/%m/%Y")
+    )
+
+    return nuevos_detalles
