@@ -26,6 +26,9 @@ def create_user(db: Session, user: UserCreate):
 def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
+def get_all_clientes(db: Session):
+    return db.query(User).filter(User.rol == "cliente").all()
+
 def get_cart(db: Session, user_id: int):
     return db.query(CartItem).filter(CartItem.user_id == user_id).all()
 

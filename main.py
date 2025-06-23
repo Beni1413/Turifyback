@@ -77,6 +77,10 @@ def obtener_usuario(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return usuario
 
+@app.get("/clientes", response_model=List[schemas.UserOut])
+def listar_clientes(db: Session = Depends(get_db)):
+    return crud.get_all_clientes(db)
+
 @app.get("/cart/{user_id}", response_model=list[schemas.CartItemOut])
 def get_cart(user_id: int, db: Session = Depends(get_db)):
     return crud.get_cart(db, user_id)
