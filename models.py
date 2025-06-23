@@ -54,7 +54,7 @@ class pedidosPendientes(Base):
     numero_pedido = Column(String(50), unique=True, nullable=False)
     monto_total = Column(Integer, nullable=False)
     estado = Column(String(20), default="pendiente")
-    fecha_creacion = Column(String(50), nullable=False)
+    fecha_creacion = Column(DateTime, nullable=False)
     direccion_entrega = Column(String(255), nullable=False)
     email_usuario = Column(String(100), nullable=False)
 

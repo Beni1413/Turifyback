@@ -1,19 +1,8 @@
 from sqlalchemy.orm import Session
-from models import User
-from schemas import UserCreate
+from models import User, CartItem, pedidosPendientes, DetalleDePedido, Servicios
+from schemas import UserCreate, CartItemCreate, PedidoCabeceraCreate, DetalleDePedidoCreate, ServicioCreate, ServicioUpdate
 from passlib.context import CryptContext
-from models import CartItem
-from schemas import CartItemCreate
-from schemas import PedidoCabeceraCreate
-from models import DetalleDePedido
-from schemas import DetalleDePedidoCreate
-from models import Servicios
-from schemas import ServicioCreate
-from models import pedidosPendientes
-from models import Servicios
-from schemas import ServicioUpdate
 from datetime import datetime
-import models
 from emails import enviar_mail_confirmacion
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -53,56 +42,61 @@ def remove_item(db: Session, user_id: int, product_id: int):
         db.delete(item)
         db.commit()
 
-def create_pedido(db: Session, pedido: PedidoCabeceraCreate):
+def procesar_pedido_completo(
+    db: Session,
+    pedido_data: PedidoCabeceraCreate,
+    detalles_data: list[DetalleDePedidoCreate]
+):
     db_pedido = pedidosPendientes(
-        user_id=pedido.user_id,
-        servicio_id=pedido.servicio_id,
-        numero_pedido=pedido.numero_pedido,
-        monto_total=pedido.monto_total,
-        estado=pedido.estado,
-        fecha_creacion=pedido.fecha_creacion or datetime.utcnow(),
-        direccion_entrega=pedido.direccion_entrega,
-        email_usuario=pedido.email_usuario
+        user_id=pedido_data.user_id,
+        servicio_id=pedido_data.servicio_id,
+        numero_pedido=pedido_data.numero_pedido,
+        monto_total=pedido_data.monto_total,
+        estado=pedido_data.estado,
+        fecha_creacion=pedido_data.fecha_creacion or datetime.utcnow(),
+        direccion_entrega=pedido_data.direccion_entrega,
+        email_usuario=pedido_data.email_usuario
     )
     db.add(db_pedido)
     db.commit()
     db.refresh(db_pedido)
-    usuario = db.query(models.User).get(pedido.user_id)
-    detalles = db.query(models.DetalleDePedido).filter(
-        models.DetalleDePedido.pedido_id == db_pedido.id
-    ).all()
 
-    lista_detalles = []
-    for detalle in detalles:
-        servicio = db.query(models.Servicios).get(detalle.servicio_id)
-        lista_detalles.append({
-            "nombre": servicio.nombre,
-            "categoria": servicio.categoria,
-            "precio": servicio.precio,
-            "cantidad": detalle.cantidad
-        })
-    enviar_mail_confirmacion(
-        destinatario=pedido.email_usuario,
-        nombre=usuario.name if usuario else "Cliente",
-        numero_pedido=pedido.numero_pedido,
-        detalles=lista_detalles,
-        direccion=pedido.direccion_entrega,
-        fecha=db_pedido.fecha_creacion.strftime("%d/%m/%Y")
-    )
-
-    return db_pedido
-
-
-def crear_detalle_de_pedido(db: Session, detalles: list[DetalleDePedidoCreate]):
     nuevos_detalles = []
-    for detalle_data in detalles:
-        nuevo = detalleDePedido(**detalle_data.dict())
+    for detalle_data in detalles_data:
+        nuevo = DetalleDePedido(
+            pedido_id=db_pedido.id,
+            servicio_id=detalle_data.servicio_id,
+            cantidad=detalle_data.cantidad,
+            importe=detalle_data.importe,
+            fecha_creacion=detalle_data.fecha_creacion
+        )
         db.add(nuevo)
         nuevos_detalles.append(nuevo)
     db.commit()
     for d in nuevos_detalles:
         db.refresh(d)
-    return nuevos_detalles
+
+    usuario = db.query(User).get(pedido_data.user_id)
+    lista_detalles = []
+    for d in nuevos_detalles:
+        servicio = db.query(Servicios).get(d.servicio_id)
+        lista_detalles.append({
+            "nombre": servicio.nombre,
+            "categoria": servicio.categoria,
+            "precio": servicio.precio,
+            "cantidad": d.cantidad
+        })
+
+    enviar_mail_confirmacion(
+        destinatario=pedido_data.email_usuario,
+        nombre=usuario.name if usuario else "Cliente",
+        numero_pedido=pedido_data.numero_pedido,
+        detalles=lista_detalles,
+        direccion=pedido_data.direccion_entrega,
+        fecha=db_pedido.fecha_creacion.strftime("%d/%m/%Y")
+    )
+
+    return db_pedido
 
 def actualizar_estado_pedido(db: Session, pedido_id: int, nuevo_estado: str):
     pedido = db.query(pedidosPendientes).filter(pedidosPendientes.id == pedido_id).first()
@@ -114,35 +108,33 @@ def actualizar_estado_pedido(db: Session, pedido_id: int, nuevo_estado: str):
     return pedido
 
 def anular_pedido(db: Session, pedido_id: int):
-    pedido = db.query(models.pedidosPendientes).filter(models.pedidosPendientes.id == pedido_id).first()
-    if not pedido:
-        return None
-    if pedido.estado == "anulado":
-        return pedido  # Ya está anulado
+    pedido = db.query(pedidosPendientes).filter(pedidosPendientes.id == pedido_id).first()
+    if not pedido or pedido.estado == "anulado":
+        return pedido
     pedido.estado = "anulado"
     db.commit()
     db.refresh(pedido)
     return pedido
 
 def get_pedidos_por_usuario(db: Session, user_id: int):
-    return db.query(models.pedidosPendientes).filter(models.pedidosPendientes.user_id == user_id).all()
+    return db.query(pedidosPendientes).filter(pedidosPendientes.user_id == user_id).all()
 
 def get_pedidos_con_servicio(db: Session, user_id: int):
     return (
         db.query(
-            models.pedidosPendientes.id,
-            models.pedidosPendientes.numero_pedido,
-            models.pedidosPendientes.monto_total,
-            models.pedidosPendientes.estado,
-            models.pedidosPendientes.fecha_creacion,
-            models.pedidosPendientes.direccion_entrega,
-            models.pedidosPendientes.email_usuario,
-            models.Servicios.id.label("servicio_id"),
-            models.Servicios.nombre.label("nombre_servicio"),
-            models.Servicios.categoria.label("categoria_servicio")
+            pedidosPendientes.id,
+            pedidosPendientes.numero_pedido,
+            pedidosPendientes.monto_total,
+            pedidosPendientes.estado,
+            pedidosPendientes.fecha_creacion,
+            pedidosPendientes.direccion_entrega,
+            pedidosPendientes.email_usuario,
+            Servicios.id.label("servicio_id"),
+            Servicios.nombre.label("nombre_servicio"),
+            Servicios.categoria.label("categoria_servicio")
         )
-        .join(models.Servicios, models.pedidosPendientes.servicio_id == models.Servicios.id)
-        .filter(models.pedidosPendientes.user_id == user_id)
+        .join(Servicios, pedidosPendientes.servicio_id == Servicios.id)
+        .filter(pedidosPendientes.user_id == user_id)
         .all()
     )
 
@@ -152,7 +144,7 @@ def crear_servicio(db: Session, servicio: ServicioCreate):
     db.commit()
     db.refresh(nuevo_servicio)
     return nuevo_servicio
-    
+
 def filtrar_servicios_por_categoria(db: Session, categoria: str):
     return db.query(Servicios).filter(Servicios.categoria == categoria).all()
 
@@ -163,10 +155,8 @@ def actualizar_servicio(db: Session, servicio_id: int, datos: ServicioUpdate):
     servicio = db.query(Servicios).filter(Servicios.id == servicio_id).first()
     if not servicio:
         return None
-
     for campo, valor in datos.dict(exclude_unset=True).items():
         setattr(servicio, campo, valor)
-
     db.commit()
     db.refresh(servicio)
     return servicio
@@ -182,23 +172,23 @@ def eliminar_servicio(db: Session, servicio_id: int):
 def get_all_pedidos(db: Session):
     return (
         db.query(
-            models.pedidosPendientes.id,
-            models.pedidosPendientes.numero_pedido,
-            models.pedidosPendientes.monto_total,
-            models.pedidosPendientes.estado,
-            models.pedidosPendientes.fecha_creacion,
-            models.pedidosPendientes.direccion_entrega,
-            models.pedidosPendientes.email_usuario,
-            models.Servicios.id.label("servicio_id"),
-            models.Servicios.nombre.label("nombre_servicio"),
-            models.Servicios.categoria.label("categoria_servicio")
+            pedidosPendientes.id,
+            pedidosPendientes.numero_pedido,
+            pedidosPendientes.monto_total,
+            pedidosPendientes.estado,
+            pedidosPendientes.fecha_creacion,
+            pedidosPendientes.direccion_entrega,
+            pedidosPendientes.email_usuario,
+            Servicios.id.label("servicio_id"),
+            Servicios.nombre.label("nombre_servicio"),
+            Servicios.categoria.label("categoria_servicio")
         )
-        .join(models.Servicios, models.pedidosPendientes.servicio_id == models.Servicios.id)
+        .join(Servicios, pedidosPendientes.servicio_id == Servicios.id)
         .all()
     )
 
 def eliminar_pedido(db: Session, pedido_id: int):
-    pedido = db.query(models.pedidosPendientes).filter(models.pedidosPendientes.id == pedido_id).first()
+    pedido = db.query(pedidosPendientes).filter(pedidosPendientes.id == pedido_id).first()
     if not pedido:
         return False
     db.delete(pedido)
