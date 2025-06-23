@@ -107,7 +107,7 @@ def cambiar_estado_pedido(update: PedidoEstadoUpdate, db: Session = Depends(get_
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     return {"msg": "Estado actualizado correctamente", "nuevo_estado": pedido_actualizado.estado}
 
-@app.get("/pedidos/", response_model=List[schemas.PedidoCabecera])
+@app.get("/pedidos/", response_model=List[schemas.PedidoCabeceraConServicio])
 def obtener_pedidos(db: Session = Depends(get_db)):
     return crud.get_all_pedidos(db)
 
@@ -118,7 +118,7 @@ def anular_pedido(data: schemas.PedidoAnulacion, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     return {"mensaje": "Pedido anulado correctamente", "estado": pedido.estado}
 
-@app.get("/pedidos/mios", response_model=List[schemas.PedidoCabecera])
+@app.get("/pedidos/mios", response_model=List[schemas.PedidoCabeceraConServicio])
 def obtener_mis_pedidos(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)

@@ -55,13 +55,13 @@ class PedidoCabeceraCreate(BaseModel):
     class Config:
         from_attributes = True 
 
-class PedidoCabecera(PedidoCabeceraCreate):
+class PedidoCabeceraSimple(PedidoCabeceraCreate):
     id: int
 
     class Config:
         orm_mode = True
 
-class PedidoCabecera(BaseModel):
+class PedidoCabeceraConServicios(BaseModel):
     id: int
     numero_pedido: str
     monto_total: float
