@@ -178,3 +178,10 @@ def get_all_pedidos(db: Session):
         .all()
     )
 
+def eliminar_pedido(db: Session, pedido_id: int):
+    pedido = db.query(models.pedidosPendientes).filter(models.pedidosPendientes.id == pedido_id).first()
+    if not pedido:
+        return False
+    db.delete(pedido)
+    db.commit()
+    return True

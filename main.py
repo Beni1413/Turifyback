@@ -125,6 +125,13 @@ def obtener_mis_pedidos(
 ):
     return crud.get_pedidos_con_servicio(db, current_user.id)
 
+@app.delete("/pedidos/{pedido_id}")
+def eliminar_pedido(pedido_id: int, db: Session = Depends(get_db)):
+    exito = crud.eliminar_pedido(db, pedido_id)
+    if not exito:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    return {"mensaje": "Pedido eliminado correctamente"}
+
 
 @app.post("/servicios/", response_model=ServicioOut)
 def crear_servicio(servicio: ServicioCreate, db: Session = Depends(get_db)):
