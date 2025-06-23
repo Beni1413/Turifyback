@@ -76,7 +76,6 @@ class PedidoCabeceraConServicios(BaseModel):
     class Config:
         from_attributes = True
 
-
 class DetalleDePedidoCreate(BaseModel):
     pedido_id: int
     servicio_id: int
@@ -126,7 +125,7 @@ class ServicioOut(BaseModel):
     precio: int
     noches: Optional[int] = None
     personas: Optional[int] = None
-    duracion: Optional[int] = None
+    duracion: Optional[str] = None
     clase: Optional[str] = None
     dias: Optional[str] = None
     gama: Optional[str] = None
@@ -141,7 +140,7 @@ class ServicioUpdate(BaseModel):
     precio: int | None = None
     noches: int | None = None
     personas: int | None = None
-    duracion: int | None = None
+    duracion: str | None = None
     clase: str | None = None
     dias: str | None = None
     gama: str | None = None
