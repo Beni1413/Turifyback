@@ -118,9 +118,9 @@ def get_pedidos_con_servicio(db: Session, user_id: int):
             models.pedidosPendientes.fecha_creacion,
             models.pedidosPendientes.direccion_entrega,
             models.pedidosPendientes.email_usuario,
-            models.Servicio.id.label("servicio_id"),
-            models.Servicio.nombre.label("nombre_servicio"),
-            models.Servicio.categoria.label("categoria_servicio")
+            models.Servicios.id.label("servicio_id"),
+            models.Servicios.nombre.label("nombre_servicio"),
+            models.Servicios.categoria.label("categoria_servicio")
         )
         .join(models.Servicio, models.pedidosPendientes.servicio_id == models.Servicio.id)
         .filter(models.pedidosPendientes.user_id == user_id)
