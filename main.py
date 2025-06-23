@@ -118,7 +118,7 @@ def anular_pedido(data: schemas.PedidoAnulacion, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     return {"mensaje": "Pedido anulado correctamente", "estado": pedido.estado}
 
-@app.get("/pedidos/mios", response_model=List[schemas.PedidoCabeceraConServicio])
+@app.get("/pedidos/mios", response_model=List[schemas.PedidoCabeceraConServicios])
 def obtener_mis_pedidos(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
