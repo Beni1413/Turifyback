@@ -56,43 +56,8 @@ def procesar_pedido_completo(db: Session, pedido_data: PedidoCabeceraCreate, det
     db.add(db_pedido)
     db.commit()
     db.refresh(db_pedido)
-
-    nuevos_detalles = []
-    for detalle_data in detalles_data:
-        nuevo = DetalleDePedido(
-            pedido_id=db_pedido.id,
-            servicio_id=detalle_data.servicio_id,
-            cantidad=detalle_data.cantidad,
-            importe=detalle_data.importe,
-            fecha_creacion=detalle_data.fecha_creacion
-        )
-        db.add(nuevo)
-        nuevos_detalles.append(nuevo)
-    db.commit()
-    for d in nuevos_detalles:
-        db.refresh(d)
-
-    usuario = db.query(User).get(pedido_data.user_id)
-    lista_detalles = []
-    for d in nuevos_detalles:
-        servicio = db.query(Servicios).get(d.servicio_id)
-        lista_detalles.append({
-            "nombre": servicio.nombre,
-            "categoria": servicio.categoria,
-            "precio": servicio.precio,
-            "cantidad": d.cantidad
-        })
-
-    enviar_mail_confirmacion(
-        destinatario=pedido_data.email_usuario,
-        nombre=usuario.name if usuario else "Cliente",
-        numero_pedido=pedido_data.numero_pedido,
-        detalles=lista_detalles,
-        direccion=pedido_data.direccion_entrega,
-        fecha=db_pedido.fecha_creacion.strftime("%d/%m/%Y")
-    )
-
     return db_pedido
+
 
 def actualizar_estado_pedido(db: Session, pedido_id: int, nuevo_estado: str):
     pedido = db.query(pedidosPendientes).filter(pedidosPendientes.id == pedido_id).first()
@@ -229,3 +194,4 @@ def crear_detalle_de_pedido(db: Session, detalles: list[DetalleDePedidoCreate]):
     )
 
     return nuevos_detalles
+
