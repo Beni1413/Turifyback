@@ -60,19 +60,38 @@ def create_pedido(db: Session, pedido: PedidoCabeceraCreate):
         numero_pedido=pedido.numero_pedido,
         monto_total=pedido.monto_total,
         estado=pedido.estado,
-        fecha_creacion=pedido.fecha_creacion or datetime.utcnow(),  
+        fecha_creacion=pedido.fecha_creacion or datetime.utcnow(),
         direccion_entrega=pedido.direccion_entrega,
         email_usuario=pedido.email_usuario
     )
     db.add(db_pedido)
     db.commit()
     db.refresh(db_pedido)
+    usuario = db.query(models.User).get(pedido.user_id)
+    detalles = db.query(models.DetalleDePedido).filter(
+        models.DetalleDePedido.pedido_id == db_pedido.id
+    ).all()
+
+    lista_detalles = []
+    for detalle in detalles:
+        servicio = db.query(models.Servicios).get(detalle.servicio_id)
+        lista_detalles.append({
+            "nombre": servicio.nombre,
+            "categoria": servicio.categoria,
+            "precio": servicio.precio,
+            "cantidad": detalle.cantidad
+        })
     enviar_mail_confirmacion(
         destinatario=pedido.email_usuario,
-        nombre="Cliente",  # podés traer esto desde la tabla de usuarios si querés personalizar
-        numero_pedido=pedido.numero_pedido
+        nombre=usuario.name if usuario else "Cliente",
+        numero_pedido=pedido.numero_pedido,
+        detalles=lista_detalles,
+        direccion=pedido.direccion_entrega,
+        fecha=db_pedido.fecha_creacion.strftime("%d/%m/%Y")
     )
+
     return db_pedido
+
 
 def crear_detalle_de_pedido(db: Session, detalles: list[DetalleDePedidoCreate]):
     nuevos_detalles = []
