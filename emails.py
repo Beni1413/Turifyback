@@ -2,6 +2,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+remitente = "turifycontacto@gmail.com"
+password = "sgls ribs ahwh tmeo" 
+
 def generar_html_confirmacion(nombre, numero_pedido, detalles, direccion, fecha):
     subtotal = sum(d["cantidad"] * d["precio"] for d in detalles)
     iva = round(subtotal * 0.21, 2)
@@ -19,7 +22,7 @@ def generar_html_confirmacion(nombre, numero_pedido, detalles, direccion, fecha)
         </tr>
         """
 
-    html = f"""\
+    html = f"""
     <html>
       <head>
         <style>
@@ -71,25 +74,18 @@ def generar_html_confirmacion(nombre, numero_pedido, detalles, direccion, fecha)
     return html
 
 def enviar_mail_confirmacion(destinatario: str, nombre: str, numero_pedido: str, detalles: list, direccion: str, fecha: str):
-    remitente = "turifycontacto@gmail.com"
-    password = "sgls ribs ahwh tmeo"
     asunto = "Confirmación de tu pedido en Turify ✈️"
-
     html = generar_html_confirmacion(nombre, numero_pedido, detalles, direccion, fecha)
 
     msg = MIMEMultipart("alternative")
     msg["From"] = remitente
     msg["To"] = destinatario
     msg["Subject"] = asunto
-
     msg.attach(MIMEText(html, "html"))
 
-    try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as servidor:
-            servidor.login(remitente, password)
-            servidor.sendmail(remitente, destinatario, msg.as_string())
-    except Exception as e:
-        print(f"Error al enviar el correo: {e}")
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as servidor:
+        servidor.login(remitente, password)
+        servidor.sendmail(remitente, [destinatario], msg.as_string())
 
 def enviar_mail_pago_confirmado(destinatarios: list[str], nombre: str, numero_pedido: str, monto: float, fecha: str):
     asunto = "Pago recibido - Turify"
