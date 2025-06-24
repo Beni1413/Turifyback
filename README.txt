@@ -1,5 +1,5 @@
-TURIFY - BACKEND FASTAPI
-Este backend maneja el sistema de reservas de la app Turify. Permite registrar usuarios, gestionar servicios, pedidos, y enviar correos con el resumen de lo comprado. Usa FastAPI y PostgreSQL.
+TURIFY - BACKEND FASTAPI OLIMPIADA NACIONAL DE ETP 2025 (PROGRAMACION)
+Esta API REST maneja el sistema de reservas de la app Turify. Permite registrar usuarios, gestionar servicios, pedidos, y enviar correos con el resumen de lo comprado. Usa FastAPI y PostgreSQL.
 
 Tecnologías:
 - FastAPI

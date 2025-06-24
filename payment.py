@@ -1,6 +1,6 @@
 import mercadopago
 
-sdk = mercadopago.SDK("TEST-6297043000243115-062416-be6247174c0882f0f279d1827c2de9b8-1302080610")
+sdk = mercadopago.SDK("TEST-3063286480776161-062415-9fd686a7c377b8457b74af32663c8482-1343558942")
 
 def generar_preferencia(servicio, cantidad, precio_unitario, pedido_numero: str):
     data = {
