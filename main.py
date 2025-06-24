@@ -19,6 +19,7 @@ from fastapi import Depends
 from dependencies import get_current_user  # si tenés esto
 from models import User 
 from payment import generar_preferencia
+from schemas import Pago
 
 app = FastAPI()
 
@@ -173,9 +174,15 @@ def admin_dashboard(_ = Depends(verificar_admin)):
     return {"msg": "Bienvenido Admin"}
 
 @app.post("/pago")
-def crear_pago(servicio: str, cantidad: int, precio: float):
-    url = generar_preferencia(servicio, cantidad, precio, pedido_numero)
+def crear_pago(pago: Pago):
+    url = generar_preferencia(
+        pago.servicio,
+        pago.cantidad,
+        pago.precio,
+        pago.pedido_numero
+    )
     return {"init_point": url}
+
 
 @app.post("/webhook")
 def recibir_webhook(payload: dict = Body(...), db: Session = Depends(get_db)):
