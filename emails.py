@@ -90,3 +90,35 @@ def enviar_mail_confirmacion(destinatario: str, nombre: str, numero_pedido: str,
             servidor.sendmail(remitente, destinatario, msg.as_string())
     except Exception as e:
         print(f"Error al enviar el correo: {e}")
+
+def enviar_mail_pago_confirmado(destinatarios: list[str], nombre: str, numero_pedido: str, monto: float, fecha: str):
+    asunto = "Pago recibido - Turify"
+    mensaje = MIMEMultipart("alternative")
+    mensaje["Subject"] = asunto
+    mensaje["From"] = remitente
+    mensaje["To"] = ", ".join(destinatarios)
+
+    html = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;">
+        <div style="background-color: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: auto;">
+            <h2 style="color: #28a745;">✔ Pago realizado con éxito</h2>
+            <p>Hola {nombre},</p>
+            <p>Recibimos el pago del pedido <strong>#{numero_pedido}</strong> por un total de <strong>${monto:.2f}</strong>.</p>
+            <p><strong>Fecha del pago:</strong> {fecha}</p>
+            <p>Te enviamos esta confirmación como comprobante.</p>
+            <hr>
+            <p style="font-size: 14px; color: #999;">Este correo también fue enviado a la empresa.</p>
+            <p style="font-size: 14px; color: #999;">Gracias por confiar en Turify.</p>
+        </div>
+    </body>
+    </html>
+    """
+
+    cuerpo = MIMEText(html, "html")
+    mensaje.attach(cuerpo)
+
+    with smtplib.SMTP("smtp.gmail.com", 587) as servidor:
+        servidor.starttls()
+        servidor.login(remitente, password)
+        servidor.sendmail(remitente, destinatarios, mensaje.as_string())

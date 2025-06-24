@@ -18,6 +18,8 @@ from dependencies import verificar_admin
 from fastapi import Depends
 from dependencies import get_current_user  # si tenés esto
 from models import User 
+from payment import generar_preferencia
+
 app = FastAPI()
 
 origins = [
@@ -169,4 +171,38 @@ def borrar_servicio(servicio_id: int, db: Session = Depends(get_db)):
 @app.get("/admin/dashboard")
 def admin_dashboard(_ = Depends(verificar_admin)):
     return {"msg": "Bienvenido Admin"}
+
+@app.post("/pago")
+def crear_pago(servicio: str, cantidad: int, precio: float):
+    url = generar_preferencia(servicio, cantidad, precio)
+    return {"init_point": url}
+
+@app.post("/webhook")
+def recibir_webhook(payload: dict = Body(...), db: Session = Depends(get_db)):
+    if payload.get("type") == "payment":
+        payment_id = payload["data"]["id"]
+
+        try:
+            payment_info = sdk.payment().get(payment_id)
+            status = payment_info["response"]["status"]
+            metadata = payment_info["response"].get("metadata", {})
+            pedido_numero = metadata.get("pedido_numero")  
+        except Exception as e:
+            print("Error al consultar el pago:", e)
+            return {"status": "error", "detail": str(e)}
+
+        if status == "approved" and pedido_numero:
+            pedido = db.query(pedidosPendientes).filter_by(numero_pedido=pedido_numero).first()
+            if pedido:
+                usuario = db.query(User).get(pedido.user_id)
+                enviar_mail_pago_confirmado(
+                    destinatarios=[pedido.email_usuario, "turifycontacto@gmail.com"], 
+                    nombre=usuario.name if usuario else "Cliente",
+                    numero_pedido=pedido.numero_pedido,
+                    monto=pedido.monto_total,
+                    fecha=datetime.utcnow().strftime("%d/%m/%Y")
+                )
+                return {"status": "mail_enviado"}
+
+    return {"status": "sin_accion"}
 
