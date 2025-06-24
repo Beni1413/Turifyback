@@ -148,3 +148,8 @@ class ServicioUpdate(BaseModel):
     class Config:
         from_attributes = True
 
+class Pago(BaseModel):
+    servicio: str
+    cantidad: int
+    precio: float
+    pedido_numero: str

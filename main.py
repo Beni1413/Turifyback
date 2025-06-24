@@ -174,7 +174,7 @@ def admin_dashboard(_ = Depends(verificar_admin)):
 
 @app.post("/pago")
 def crear_pago(servicio: str, cantidad: int, precio: float):
-    url = generar_preferencia(servicio, cantidad, precio)
+    url = generar_preferencia(servicio, cantidad, precio, pedido_numero)
     return {"init_point": url}
 
 @app.post("/webhook")
