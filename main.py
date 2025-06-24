@@ -21,7 +21,8 @@ from models import User
 app = FastAPI()
 
 origins = [
-    "http://localhost:4200"
+    "https://turify-deploy.web.app",
+    "https://turify-deploy.firebaseapp.com"
 ]
 # Crea tablas en la base de datos
 models.Base.metadata.create_all(bind=database.engine)
