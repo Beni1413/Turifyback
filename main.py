@@ -176,10 +176,11 @@ def admin_dashboard(_ = Depends(verificar_admin)):
 @app.post("/pago")
 def crear_pago(pago: Pago):
     url = generar_preferencia(
-        pago.servicio,
-        pago.cantidad,
-        pago.precio,
-        pago.pedido_numero
+        productos=[item.dict() for item in pago.productos],
+        pedido_numero=pago.pedido_numero,
+        user_id=pago.user_id,
+        email=pago.email,
+        direccion=pago.direccion
     )
     return {"init_point": url}
 
@@ -193,23 +194,55 @@ def recibir_webhook(payload: dict = Body(...), db: Session = Depends(get_db)):
             payment_info = sdk.payment().get(payment_id)
             status = payment_info["response"]["status"]
             metadata = payment_info["response"].get("metadata", {})
-            pedido_numero = metadata.get("pedido_numero")  
         except Exception as e:
-            print("Error al consultar el pago:", e)
             return {"status": "error", "detail": str(e)}
 
-        if status == "approved" and pedido_numero:
-            pedido = db.query(pedidosPendientes).filter_by(numero_pedido=pedido_numero).first()
-            if pedido:
-                usuario = db.query(User).get(pedido.user_id)
+        if status == "approved":
+            pedido_numero = metadata.get("pedido_numero")
+            user_id = metadata.get("user_id")
+            email = metadata.get("email")
+            direccion = metadata.get("direccion")
+            productos = metadata.get("productos", [])
+
+            # Solo guardar si no está guardado aún
+            existente = db.query(pedidosPendientes).filter_by(numero_pedido=pedido_numero).first()
+            if not existente:
+                monto_total = sum(p["cantidad"] * p["precio_unitario"] for p in productos)
+
+                pedido = pedidosPendientes(
+                    numero_pedido=pedido_numero,
+                    user_id=user_id,
+                    monto_total=monto_total,
+                    estado="pendiente",
+                    fecha_creacion=datetime.utcnow(),
+                    direccion_entrega=direccion,
+                    email_usuario=email
+                )
+                db.add(pedido)
+                db.commit()
+                db.refresh(pedido)
+
+                for producto in productos:
+                    detalle = PedidoDetalle(
+                        pedido_id=pedido.id,
+                        servicio_id=producto["servicio_id"],
+                        cantidad=producto["cantidad"],
+                        importe=producto["cantidad"] * producto["precio_unitario"]
+                    )
+                    db.add(detalle)
+
+                db.commit()
+
+                # Enviar mail de confirmación
+                usuario = db.query(User).get(user_id)
                 enviar_mail_pago_confirmado(
-                    destinatarios=[pedido.email_usuario, "turifycontacto@gmail.com"], 
+                    destinatarios=[email, "turifycontacto@gmail.com"],
                     nombre=usuario.name if usuario else "Cliente",
-                    numero_pedido=pedido.numero_pedido,
-                    monto=pedido.monto_total,
+                    numero_pedido=pedido_numero,
+                    monto=monto_total,
                     fecha=datetime.utcnow().strftime("%d/%m/%Y")
                 )
-                return {"status": "mail_enviado"}
+
+                return {"status": "pedido_guardado"}
 
     return {"status": "sin_accion"}
-

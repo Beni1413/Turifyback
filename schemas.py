@@ -148,8 +148,15 @@ class ServicioUpdate(BaseModel):
     class Config:
         from_attributes = True
 
-class Pago(BaseModel):
-    servicio: str
+class Item(BaseModel):
+    servicio_id: int
+    titulo: str
     cantidad: int
-    precio: float
+    precio_unitario: float
+
+class Pago(BaseModel):
     pedido_numero: str
+    user_id: int
+    email: str
+    direccion: str
+    productos: List[Item]
